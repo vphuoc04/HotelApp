@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
     @Value("${jwt.issuer}")
     private String issuer;
 
+    @Value("${jwt.expirationRefreshToken}")
+    private Long expirationRefreshToken;
+
     public String getSecretKey(){
         return secretKey;
     }
@@ -24,5 +27,9 @@ import org.springframework.context.annotation.Configuration;
 
     public String getIssuer() {
         return issuer;
-    } 
+    }
+    
+    public Long getExpirationRefreshToken() {
+        return expirationRefreshToken;
+    }
 }

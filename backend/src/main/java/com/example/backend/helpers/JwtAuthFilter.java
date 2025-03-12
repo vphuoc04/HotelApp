@@ -35,7 +35,8 @@ package com.example.backend.helpers;
          @NonNull HttpServletRequest request
      ){
          String path = request.getRequestURI();
-         return path.startsWith("/api/v1/auth/login");
+         return path.startsWith("/api/v1/auth/login") || 
+            path.startsWith("/api/v1/auth/refresh");
      }
  
      @Override

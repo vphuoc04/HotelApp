@@ -48,8 +48,9 @@ public class UserService extends BaseService implements UserServiceInterface {
                     .build();
 
             String token = jwtService.generateToken(user.getId(), user.getEmail(), defaultExpiration);
+            String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getEmail());
             
-            return new LoginResource(token, userResource);
+            return new LoginResource(token, refreshToken, userResource);
 
         } catch (BadCredentialsException e) {
             return ApiResource.error("AUTH_ERROR", e.getMessage(), HttpStatus.UNAUTHORIZED);

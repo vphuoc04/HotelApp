@@ -1,15 +1,23 @@
 package com.example.backend.services;
  
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.configs.JwtConfig;
+import com.example.backend.modules.users.entities.RefreshToken;
 import com.example.backend.modules.users.repositories.BlacklistedTokenRepository;
+import com.example.backend.modules.users.repositories.RefreshTokenRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -24,6 +32,11 @@ public class JwtService {
 
     @Autowired
     private BlacklistedTokenRepository blacklistedTokenRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
 
     public JwtService(
         JwtConfig jwtConfig
@@ -48,6 +61,34 @@ public class JwtService {
             .setExpiration(expiryDate)
             .signWith(key, SignatureAlgorithm.HS512)
             .compact();
+    }
+
+    public String generateRefreshToken(Long userId, String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtConfig.getExpirationRefreshToken());
+
+        LocalDateTime localExpiryDate = expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+        String refreshToken = UUID.randomUUID().toString();
+
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findById(userId);
+
+        if(optionalRefreshToken.isPresent()) {
+            RefreshToken dbRefreshToken = optionalRefreshToken.get();
+
+            dbRefreshToken.setRefreshToken(refreshToken);
+            dbRefreshToken.setExpiryDate(localExpiryDate);
+            refreshTokenRepository.save(dbRefreshToken);
+        } else {
+            RefreshToken insertRefreshToken = new RefreshToken();
+            
+            insertRefreshToken.setRefreshToken(refreshToken);
+            insertRefreshToken.setExpiryDate(localExpiryDate);
+            insertRefreshToken.setUserId(userId);
+            refreshTokenRepository.save(insertRefreshToken);
+        }
+
+        return refreshToken;
     }
 
     public String getAdminIdFromJwt(String token){
@@ -103,6 +144,18 @@ public class JwtService {
 
     public boolean isBlacklistedToken(String token) {
         return blacklistedTokenRepository.existsByToken(token);
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(token)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+            logger.info("This is refresh token: " + refreshToken);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public Claims getAllClaimsFromToken(String token) {

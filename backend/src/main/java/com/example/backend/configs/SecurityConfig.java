@@ -34,7 +34,8 @@ package com.example.backend.configs;
              .authorizeHttpRequests(auth -> auth
                  
                  .requestMatchers(
-                     "/api/v1/auth/login"
+                     "/api/v1/auth/login",
+                     "/api/v1/auth/refresh_token"
                  )
                  .permitAll()
  
