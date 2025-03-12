@@ -11,9 +11,11 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -24,6 +26,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long catalogueId;
+    private Long addedBy;
+    private Long editedBy;
     private String firstName;
     private String middleName;
     private String lastName;
