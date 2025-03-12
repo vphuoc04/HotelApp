@@ -114,7 +114,7 @@ package com.example.backend.helpers;
                 return;
             }
      
-             userId = jwtService.getAdminIdFromJwt(jwt);
+             userId = jwtService.getUserIdFromJwt(jwt);
      
              if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                  UserDetails userDetails = customUserDetailService.loadUserByUsername(userId);

@@ -91,7 +91,7 @@ public class JwtService {
         return refreshToken;
     }
 
-    public String getAdminIdFromJwt(String token){
+    public String getUserIdFromJwt(String token){
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 
         return claims.getSubject();
